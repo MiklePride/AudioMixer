@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class VolumeChenger : MonoBehaviour
 {
@@ -9,38 +8,40 @@ public class VolumeChenger : MonoBehaviour
     private const string BackgroundVolume = nameof(BackgroundVolume);
     private const string MasterVolume = nameof(MasterVolume);
 
-    [SerializeField] private AudioMixer _audioMixer;
-    [SerializeField] private AudioMixerSnapshot _mute;
-    [SerializeField] private AudioMixerSnapshot _unmute;
+    [SerializeField] private Slider _totalVolume;
+    [SerializeField] private Slider _buttonVolume;
+    [SerializeField] private Slider _backgroundVolume;
 
-    private bool _isMuted = false;
+    [SerializeField] private AudioMixer _audioMixer;
+
+    private int _logarithmMultiplier = 20;
+
+    private void OnEnable()
+    {
+        _totalVolume.onValueChanged.AddListener(OnMasterVolumeChenge);
+        _buttonVolume.onValueChanged.AddListener(OnButtonVolumeChenge);
+        _backgroundVolume.onValueChanged.AddListener(OnBackgroundVolumeChenge);
+    }
+
+    private void OnDestroy()
+    {
+        _totalVolume.onValueChanged.RemoveListener(OnMasterVolumeChenge);
+        _buttonVolume.onValueChanged.RemoveListener(OnButtonVolumeChenge);
+        _backgroundVolume.onValueChanged.RemoveListener(OnBackgroundVolumeChenge);
+    }
 
     public void OnButtonVolumeChenge(float volume)
     {
-        _audioMixer.SetFloat(ButtonVolume, Mathf.Log10(volume) * 20);
+        _audioMixer.SetFloat(ButtonVolume, Mathf.Log10(volume) * _logarithmMultiplier);
     }
 
     public void OnBackgroundVolumeChenge(float volume)
     {
-        _audioMixer.SetFloat(BackgroundVolume, Mathf.Log10(volume) * 20);
+        _audioMixer.SetFloat(BackgroundVolume, Mathf.Log10(volume) * _logarithmMultiplier);
     }
 
     public void OnMasterVolumeChenge(float volume)
     {
-        _audioMixer.SetFloat(MasterVolume, Mathf.Log10(volume) * 20);
-    }
-
-    public void OnMuteAll()
-    {
-        _isMuted = !_isMuted;
-
-        if (_isMuted)
-        {
-            _mute.TransitionTo(0);
-        }
-        else
-        {
-            _unmute.TransitionTo(0);
-        }
+        _audioMixer.SetFloat(MasterVolume, Mathf.Log10(volume) * _logarithmMultiplier);
     }
 }

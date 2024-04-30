@@ -1,8 +1,11 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(AudioSource))]
 public class SoundPlayer : MonoBehaviour
 {
+    [SerializeField] private Button _playButton;
+
     private AudioSource _audioSource;
     private bool _isPlaying;
 
@@ -10,6 +13,16 @@ public class SoundPlayer : MonoBehaviour
     {
         _audioSource = GetComponent<AudioSource>();
         _isPlaying = false;
+    }
+
+    private void OnEnable()
+    {
+        _playButton.onClick.AddListener(OnChengeState);
+    }
+
+    private void OnDestroy()
+    {
+        _playButton.onClick.RemoveListener(OnChengeState);
     }
 
     public void OnChengeState()
